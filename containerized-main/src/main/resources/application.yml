@@ -1,5 +1,5 @@
 server:
-#  tomcat.threads.max: 5
+  tomcat.threads.max: 10
   port: ${PORT:2222}
   servlet:
     context-path: /backoffice
