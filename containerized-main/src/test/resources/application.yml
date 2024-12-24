@@ -1,0 +1,37 @@
+server:
+  tomcat.threads.max: 10
+  port: ${PORT:2222}
+  servlet:
+    context-path: /backoffice
+
+spring:
+  application:
+    name: containerized-main
+  profiles.active: platform
+
+logging:
+  pattern:
+    level: "trace_id=%X{traceId:-} span_id=%X{spanId:-} trace_flags=%X{trace_flags} %p"
+  level:
+    com.tanerdiler.microservice.main: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "platform"
+  threads:
+    virtual:
+      enabled: false
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "virtual"
+  threads:
+    virtual:
+      enabled: true
+

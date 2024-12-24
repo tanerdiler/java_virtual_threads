@@ -72,9 +72,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven.surefire.version}</version>
 				<configuration>
-					<argLine>
-						--illegal-access=permit
-					</argLine>
+					<argLine>--illegal-access=permit --enable-preview</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -82,9 +80,7 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>${maven.surefire.version}</version>
 				<configuration>
-					<argLine>
-						--illegal-access=permit
-					</argLine>
+					<argLine>--illegal-access=permit --enable-preview</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
