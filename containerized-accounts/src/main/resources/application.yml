@@ -1,0 +1,67 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /account
+
+spring:
+  application:
+    name: containerized-accounts
+  logstash:
+    server: logstash
+    port: 5000
+  sleuth:
+    traceId128: true
+    supportsJoin: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    tags:
+      application: app
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: 'true'
+logging:
+  pattern:
+    level: "trace_id=%X{traceId:-} span_id=%X{spanId:-} trace_flags=%X{trace_flags} %p"
+  level:
+    com.tanerdiler.microservice.accounts: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: ${DISCOVERY_URL:http://discovery:8761}/eureka/
+
+ribbon:
+  eureka:
+    enabled: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "platform"
+  threads:
+    virtual:
+      enabled: false
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "virtual"
+  threads:
+    virtual:
+      enabled: true
