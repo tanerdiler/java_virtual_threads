@@ -96,3 +96,4 @@ ab -n 1000 -c 200 http://localhost:2222/backoffice/api/v1/backoffice/orders/byRe
 9. [The Ultimate Guide to Java Virtual Threads ](https://rockthejvm.com/articles/the-ultimate-guide-to-java-virtual-threads)
 10. [Beyond Loom: Weaving new concurrency patterns | Red Hat Developer](https://developers.redhat.com/articles/2023/10/03/beyond-loom-weaving-new-concurrency-patterns#)
 11. [Spring Tips: Virtual Threads](https://www.youtube.com/watch?v=9iH5h11YJak)
+12. https://github.com/spring-projects/spring-boot/issues/41937
