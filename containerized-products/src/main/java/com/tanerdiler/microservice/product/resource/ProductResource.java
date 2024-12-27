@@ -50,7 +50,7 @@ public class ProductResource {
 
 	private static void sleep() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
