@@ -3,22 +3,12 @@ package com.tanerdiler.microservice.main.config;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
-import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.http.HttpClient;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -31,7 +21,7 @@ public class Config {
 
     private ClientHttpRequestFactory clientHttpRequestFactory() {
 
-        Integer timeoutPeriod = 5000;
+        Integer timeoutPeriod = 15000;
         ConnectionConfig connConfig = ConnectionConfig.custom()
                 .setConnectTimeout(timeoutPeriod, TimeUnit.MILLISECONDS)
                 .setSocketTimeout(timeoutPeriod, TimeUnit.MILLISECONDS)
