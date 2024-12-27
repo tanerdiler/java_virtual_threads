@@ -1,6 +1,6 @@
 # Java Virtual Thread Benchmark On Spring Boot
 
-![Service Graph](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service_graph.png)
+![Service Graph]([https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service_graph.png](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service-graph.png))
 
 ## Benchmark Results
 ```
