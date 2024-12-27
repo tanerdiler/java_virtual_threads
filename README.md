@@ -1,6 +1,6 @@
 # Java Virtual Thread Benchmark On Spring Boot
 
-![Service Graph]([https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service_graph.png](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service-graph.png))
+![Service Graph](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service-graph.png)
 
 ## Benchmark Results
 ```
@@ -53,6 +53,69 @@ ab -n 50 -c 10 http://localhost:2222/backoffice/api/v1/backoffice/orders/byRestT
 | 10        |      1.53 |                32.663 |
 
 Please see ***Using Connection Pools with Java Virtual Threads*** section.
+
+## Reason of Performance Lost Using CompletableFuture In Virtual Thread
+
+Using CompletableFuture inside a Spring Boot REST controller with Virtual Threads enabled might lead to poor performance due to misalignment between CompletableFuture's execution model and Virtual Threads' characteristics. Here are the key reasons and considerations:
+
+**1. Default Executor of CompletableFuture**
+
+  - By default, CompletableFuture uses the ForkJoinPool.commonPool for its execution.
+  - Virtual Threads rely on their own scheduling mechanism and are designed to be lightweight and non-blocking. However, the common pool is optimized for platform threads and computational tasks, not Virtual Threads.
+  - When you use CompletableFuture without specifying an executor, tasks are scheduled on the common pool, which can become a bottleneck, especially in high-concurrency scenarios.
+
+**2. Thread Blocking in CompletableFuture**
+   - If your CompletableFuture tasks involve blocking I/O operations (e.g., database queries, HTTP calls), those blocks are executed on the ForkJoinPool threads.
+   - This reduces the effectiveness of Virtual Threads because blocking operations in the ForkJoinPool are not optimized for the cooperative scheduling of Virtual Threads.
+
+**3. Overhead of Context Switching**
+   - Virtual Threads aim to minimize context switching overhead. However, when CompletableFuture schedules tasks in the common pool, it might cause additional context switches between Virtual Threads and platform threads, leading to performance degradation.
+
+**4. Inefficient Use of Virtual Threads**
+   - Virtual Threads are best utilized when running directly without relying on traditional thread-pooling mechanisms.
+   - Wrapping tasks in CompletableFuture adds an extra layer of abstraction, which might interfere with the natural scheduling of Virtual Threads.
+
+### Recommendations to Improve Performance
+**1. Use Virtual Thread Executor Explicitly:**
+
+Instead of using the default executor, configure CompletableFuture to use a Virtual Thread Executor:
+```
+Executor virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
+CompletableFuture.supplyAsync(() -> {
+// Task logic here
+return result;
+}, virtualThreadExecutor);
+```
+
+**2. Avoid CompletableFuture When Not Necessary:**
+
+If your REST controller already benefits from Virtual Threads (e.g., blocking code runs efficiently on Virtual Threads), avoid wrapping tasks in CompletableFuture unnecessarily.
+
+**3.Profile the Application:**
+
+- Use tools like jconsole, jvisualvm, or thread dump analysis to identify bottlenecks.
+- Ensure that tasks are not accidentally executed on the ForkJoinPool.commonPool.
+
+**4. Rewrite Tasks for Virtual Threads:**
+
+Leverage Virtual Threads directly for blocking operations instead of offloading them to CompletableFuture:
+```
+@GetMapping("/endpoint")
+public ResponseEntity<String> endpoint() {
+// Direct use of Virtual Threads
+return ResponseEntity.ok(someBlockingTask());
+}
+```
+
+**5. Optimize I/O Operations:**
+
+Ensure that any blocking I/O (e.g., database calls, HTTP requests) is compatible with Virtual Threads to take full advantage of their cooperative blocking mechanism.
+
+### Key Insight:
+The poor performance arises because CompletableFuture's default behavior doesn't align well with Virtual Threads. By explicitly using a Virtual Thread Executor or avoiding unnecessary abstraction, you can achieve significantly better performance.
+
+---
 
 ## Isolate Virtual Thread Pools
 
@@ -119,6 +182,8 @@ public class VirtualThreadExecutor {
 - **Optimize Performance:** Each thread pool can be tuned for the specific nature of its tasks (compute-heavy vs. I/O-heavy).
 
 By isolating the ForkJoinPool used by Spring Boot and creating dedicated executors for virtual threads, you ensure optimal performance and scalability in a mixed workload application.
+
+---
 
 ## Using Connection Pools with Java Virtual Threads
 While Java Virtual Threads enable highly scalable and lightweight concurrency, traditional connection pooling mechanisms can impose limitations that negate some of their benefits:
