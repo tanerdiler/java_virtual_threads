@@ -1,4 +1,29 @@
-# Java Virtual Thread Benchmark On Spring Boot
+# Java Virtual Threads
+
+A summary of the quantitative differences between platform and virtual streams:
+
+| Parameter              | Platform threads                     | Virtual threads   |
+|------------------------|:-------------------------------------|------------------:|
+| stack size             | 1 MB                                 |         resizable |
+| startup time           | > 1000 µs                            |           1-10 µs |
+| context switching time | 1-10 µs                              |          ~ 0.2 µs |
+| number                 | < 5000                               |          millions |
+[@aliakh, demo-java-virtual-threads](https://github.com/aliakh/demo-java-virtual-threads#virtual-threads)
+
+When a virtual thread calls a blocking I/O method, the scheduler performs the following actions:
+
+- unmounts the virtual thread from the carrier thread
+- suspends the continuation and saves its content
+- start a non-blocking I/O operation in the OS kernel
+- the scheduler can execute another virtual thread on the same carrier thread
+
+When the I/O operation completes in the OS kernel, the scheduler performs the opposite actions:
+
+- restores the content of the continuation and resumes it
+- waits until a carrier thread is available
+- mounts the virtual thread to the carrier thread
+
+[@aliakh, demo-java-virtual-threads](https://github.com/aliakh/demo-java-virtual-threads#virtual-threads)
 
 ![Service Graph](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/service-graph.png)
 
@@ -19,6 +44,9 @@ Http Conn. Pool Size : 500
 | CompletableFuture | newVirtualThreadPerTaskExecutor |      4,91 |              204 |
 | ScopeFork         |                                 |      4,93 |              202 |
 
+![Platform Sequential](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/platform_sequential.png)
+![Platform CompletableFuture](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/platform_completablefuture.png)
+![Platform CompletableFuture With NewThreadPerTaskExecutor](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/platform_completablefuture_newthreadpertaskexecutor.png)
 
 **Spring Boot Profile  : virtual**
 
@@ -30,8 +58,13 @@ Http Conn. Pool Size : 500
 | CompletableFuture | newVirtualThreadPerTaskExecutor |     67.20 |                    15 |
 | ScopeFork         |                                 |     66.93 |                    15 |
 
-
 **ForkJoinPool**** : The same ForkJoinPool utilized by Spring Boot for request handling is also being used to execute virtual threads. See ***Isolate Virtual Thread Pools*** section.
+
+![Virtual Sequential](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/virtual_sequential.png)
+![Virtual CompletableFuture](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/virtual_completablefuture.png)
+![Virtual CompletableFuture With NewThreadPerTaskExecutor](https://github.com/tanerdiler/java_virtual_threads/blob/master/assets/virtual_completablefuture_newthreadpertaskexecutor.png)
+
+
 
 ## Connection Pool Effect
 ```
